@@ -20,7 +20,7 @@ $.ajaxPrefilter(function (params) {
         //  ajax请求完成时 返回的信息里有一个responseJSON 
         // 当status等于1 和 message为 "身份认证失败！" 时  进行登录拦截
         params.complete = function (res) {
-            console.log(res);
+            // console.log(res);
             let { status, message } = res.responseJSON;
             if (status == 1 && message == "身份认证失败！") {
                 // 登录拦截 
