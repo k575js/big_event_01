@@ -1,5 +1,19 @@
 $(function () {
     getUserInfo();
+
+    //需求2  点击退出按钮 弹出提示框 确定后退出(销毁token 页面跳转login页面)
+    $('#btnLogout').on('click', function () {
+        // 弹出弹出框
+        layer.confirm('是否退出后台界面', { icon: 3, title: '提示' }, function (index) {
+            //do something
+            // 1.清空本地token  2.页面跳转
+            localStorage.removeItem('token')
+            location.href = '/login.html'
+
+            // 关闭询问框
+            layer.close(index);
+        });
+    })
 })
 
 // 封装一个函数 用于发送ajax请求 获取用户基本信息
@@ -8,9 +22,9 @@ function getUserInfo() {
         url: '/my/userinfo',
         type: 'get',
         data: {},
-        headers: { //api文档中规定 发送这个需要配置 Header
-            Authorization: localStorage.getItem('token') || ''
-        },
+        // headers: { //api文档中规定 发送这个需要配置 Header  【因为在/my/下的接口都需要设置头信息 把它写在 baseAPI.js当中】
+        //     Authorization: localStorage.getItem('token') || ''
+        // },
         success: (res) => {
             console.log(res);
             if (res.status != 0) return layui.layer.msg(res.message);
