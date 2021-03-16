@@ -101,8 +101,8 @@
             <td>{{obj.pub_date | dateFormat}}</td>
             <td>{{obj.state}}</td>
             <td>
-                <button type="button" data-id='{{obj.Id}}'
-                    class="layui-btn  layui-btn-sm btn-edit">编辑</button>
+                <a href='/article/art_edit.html?id={{obj.Id}}' type="button" 
+                    class="layui-btn  layui-btn-sm btn-edit">编辑</a>
                 <button type="button" data-id='{{obj.Id}}'
                     class="layui-btn  layui-btn-danger layui-btn-sm btn-del">删除</button>
             </td>

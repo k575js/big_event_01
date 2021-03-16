@@ -1,4 +1,32 @@
 $(function () {
+    let baseURL = 'http://api-breakingnews-web.itheima.net';
+    let id = location.search.split('=')[1];
+    //需求0 请求该文章数据
+    function initForm() {
+        //先拿到 通过地址传过来的id
+        console.log(location.search.split('=')[1]);
+        // 根据 Id 获取文章详情
+        $.ajax({
+            url: '/my/article/' + id,
+            type: 'GET',
+            success: (res) => {
+                console.log(res);
+                if (res.status != 0) return layui.layer.msg(res.message);
+                // 文章标题 文章类别 赋值
+                layui.form.val('editForm', res.data)
+                // 富文本编译器 赋值
+                tinyMCE.activeEditor.setContent(res.data.content)
+                // 裁剪照片 赋值
+                var newImgURL = baseURL + res.data.cover_img
+                $image
+                    .cropper('destroy')      // 销毁旧的裁剪区域
+                    .attr('src', newImgURL)  // 重新设置图片路径
+                    .cropper(options)        // 重新初始化裁剪区域
+            }
+        })
+    }
+
+
     // 需求1 文章类别 中第一个下拉框 分类列表 数据渲染
     initCate();
     function initCate() {
@@ -12,6 +40,9 @@ $(function () {
                 let htmlStr = template('options', { data: res.data });
                 $('[name=cate_id]').html(htmlStr)
                 layui.form.render()  //手动二次渲染一下
+
+                // 文章分类渲染完毕再调用 initform方法 初始化表单
+                initForm()
             }
         })
     }
@@ -56,32 +87,34 @@ $(function () {
         state = '草稿'
     })
 
-    // 需求6 fa发布文章
-    $('#form-pub').on('submit', function (e) {
+    // 需求6 发布文章
+    $('#form-edit').on('submit', function (e) {
         // 阻止默认事件
         e.preventDefault()
-        // 创建fd
+        // 创建fd 文章标题title 文章类别cate_id  文章内容content   参数获取
         let fd = new FormData(this);
-        // 
+        //  state 添加
         fd.append('state', state);
+        // Id 参数 添加
+        fd.append('Id', id);
         $image
             .cropper('getCroppedCanvas', { // 创建一个 Canvas 画布
                 width: 400,
                 height: 280
             })
             .toBlob(function (blob) {       // 将 Canvas 画布上的内容，转化为文件对象
-                // 得到文件对象后，进行后续的操作
+                // 得到文件对象后，进行后续的操作 文章封面参数添加
                 fd.append('cover_img', blob)
                 console.log(...fd);
 
-                pubArt(fd);
+                editArt(fd);
             });
     })
 
-    // 封装一个函数 发表文章ajax
-    function pubArt(fd) {
+    // 封装一个函数 更新文章ajax
+    function editArt(fd) {
         $.ajax({
-            url: '/my/article/add',
+            url: '/my/article/edit',
             type: 'POST',
             data: fd,
             contentType: false,     //设置为false
@@ -89,7 +122,7 @@ $(function () {
             success: (res) => {
                 console.log(res);
                 if (res.status != 0) return layui.layer.msg(res.message);
-                layui.layer.msg('发表成功')
+                layui.layer.msg('修改成功')
                 // location.href = '/article/art_list.html';
                 window.parent.document.querySelector('#art_list').click()
             }
